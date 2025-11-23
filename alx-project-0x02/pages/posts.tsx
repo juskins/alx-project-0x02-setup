@@ -1,29 +1,39 @@
+import { useState, useEffect } from "react";
 import Header from "@/components/layout/Header";
-import Card from "@/components/common/Card";
+import PostCard from "@/components/common/PostCard";
+
+interface Post {
+   userId: number;
+   id: number;
+   title: string;
+   body: string;
+}
 
 const PostsPage = () => {
-   const posts = [
-      { 
-         id: 1, 
-         title: "Getting Started with Next.js", 
-         content: "Next.js is a powerful React framework that enables server-side rendering and static site generation." 
-      },
-      { 
-         id: 2, 
-         title: "Understanding TypeScript", 
-         content: "TypeScript adds static typing to JavaScript, making your code more robust and maintainable." 
-      },
-      { 
-         id: 3, 
-         title: "Tailwind CSS Best Practices", 
-         content: "Learn how to effectively use Tailwind CSS utility classes to build beautiful, responsive designs." 
-      },
-      { 
-         id: 4, 
-         title: "React Hooks Explained", 
-         content: "Hooks are a powerful feature in React that let you use state and other React features without writing classes." 
-      }
-   ];
+   const [posts, setPosts] = useState<Post[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [error, setError] = useState<string | null>(null);
+
+   useEffect(() => {
+      const fetchPosts = async () => {
+         try {
+            setLoading(true);
+            const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+            if (!response.ok) {
+               throw new Error('Failed to fetch posts');
+            }
+            const data = await response.json();
+            // Get first 12 posts
+            setPosts(data.slice(0, 12));
+         } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
+         } finally {
+            setLoading(false);
+         }
+      };
+
+      fetchPosts();
+   }, []);
 
    return (
       <>
@@ -31,11 +41,31 @@ const PostsPage = () => {
          <div className="container mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Posts Page</h1>
             
-            <div className="grid gap-6 md:grid-cols-2">
-               {posts.map((post) => (
-                  <Card key={post.id} title={post.title} content={post.content} />
-               ))}
-            </div>
+            {loading && (
+               <div className="flex justify-center items-center py-12">
+                  <div className="text-xl text-gray-600 dark:text-gray-300">Loading posts...</div>
+               </div>
+            )}
+
+            {error && (
+               <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded relative mb-4">
+                  <strong className="font-bold">Error: </strong>
+                  <span className="block sm:inline">{error}</span>
+               </div>
+            )}
+
+            {!loading && !error && (
+               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {posts.map((post) => (
+                     <PostCard 
+                        key={post.id} 
+                        title={post.title} 
+                        content={post.body}
+                        userId={post.userId}
+                     />
+                  ))}
+               </div>
+            )}
          </div>
       </>
    );
