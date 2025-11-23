@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Card from "@/components/common/Card";
 import PostModal from "@/components/common/PostModal";
+import Header from "@/components/layout/Header";
 
 interface Post {
   id: number;
@@ -25,8 +26,10 @@ const HomePage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+    <>
+      <Header />
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Home Page</h1>
         <button
           onClick={() => setIsModalOpen(true)}
@@ -42,12 +45,13 @@ const HomePage = () => {
         ))}
       </div>
 
-      <PostModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleAddPost}
-      />
-    </div>
+        <PostModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleAddPost}
+        />
+      </div>
+    </>
   );
 };
 
